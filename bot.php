@@ -42,6 +42,7 @@ const EMOJI_LETTERS = "\xF0\x9F\x94\xA0";
 const EMOJI_THUMBSUP = "\xF0\x9F\x91\x8D";
 const EMOJI_THUMBSDOWN = "\xF0\x9F\x91\x8E";
 const EMOJI_INFORMATION = "\xE2\x84\xB9";
+const EMOJI_TICKET = "\xF0\x9F\x8E\xAB";
 
 /**
  * Hilfetext
@@ -61,6 +62,10 @@ EMOJI_THUMBSUP." ".EMOJI_THUMBSDOWN." *Ja oder Nein:*\n".
 EMOJI_LETTERS." *Buchstaben:*\n".
 "/b - A-Z\n".
 "\n".
+EMOJI_TICKET." *Lotteriezahlen:*\n".
+"/l - Lottozahlen, 6 aus 49\n".
+"/ej - Eurojackpot, 5 aus 50, 2 aus 10\n".
+"\n".
 EMOJI_INFORMATION." *Infos:*\n".
 "Bot erstellt von [RundesBalli.com](https://RundesBalli.com).\n".
 "Quellcode bei [GitHub](https://github.com/RundesBalli/telegram-Zufallbot).";
@@ -68,7 +73,7 @@ EMOJI_INFORMATION." *Infos:*\n".
 /**
  * Prüfung der Eingabe und matchen des übergebenen Befehls.
  */
-if(preg_match("/\/(?'action'hilfe|jn|z(?=(?'range'[1-9]\d{1,9}|[2-9]))?|b|start)/i", $response['message']['text'], $match) !== 1) {
+if(preg_match("/\/(?'action'hilfe|jn|z(?=(?'range'[1-9]\d{1,9}|[2-9]))?|b|start|l|ej)/i", $response['message']['text'], $match) !== 1) {
   SendMessageToTelegram($helptext, $response['message']['chat']['id'], TRUE);
   die();
 }
@@ -106,6 +111,35 @@ if($action == "hilfe" OR $action == "start") {
  */
 if($action == "jn") {
   SendMessageToTelegram((random_int(0, 1) == 1 ? EMOJI_THUMBSUP." JA" : EMOJI_THUMBSDOWN." NEIN"), $response['message']['chat']['id'], TRUE);
+  die();
+}
+
+/**
+ * Funktion zum generieren von Zufallszahlen
+ */
+function randomNumbers(int $min = 1, int $max = 49, int $qty = 6) {
+  $numbers = range($min, $max);
+  shuffle($numbers);
+  $numbers = array_slice($numbers, 0, $qty);
+  sort($numbers);
+  return implode(", ", $numbers);
+}
+
+/**
+ * Lottozahlen
+ * 6 aus 49
+ */
+if($action == "l") {
+  SendMessageToTelegram(EMOJI_TICKET." *Lottozahlen*:\n".randomNumbers(1, 49, 6), $response['message']['chat']['id'], TRUE);
+  die();
+}
+
+/**
+ * Eurojackpot Zahlen
+ * 5 aus 50, 2 aus 10
+ */
+if($action == "ej") {
+  SendMessageToTelegram(EMOJI_TICKET." *Eurojackpot-Zahlen:*\n\n*5 aus 50:*\n".randomNumbers(1, 50, 5)."\n\n*2 aus 10:*\n".randomNumbers(1, 10, 2), $response['message']['chat']['id'], TRUE);
   die();
 }
 ?>
